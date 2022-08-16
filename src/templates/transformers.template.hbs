@@ -1,0 +1,17 @@
+import { Template } from '../models/template.model'
+
+export interface TemplateType {
+  uuid: string
+}
+
+export default class TemplateTransformer {
+  static item (address: Template): TemplateType {
+    return {
+      uuid: address.uuid,
+      }
+    }
+
+  static array (templates: Template[]): TemplateType[] {
+    return templates.map(template => this.item(template))
+  }
+}

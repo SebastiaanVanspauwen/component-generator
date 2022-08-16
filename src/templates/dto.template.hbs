@@ -1,0 +1,8 @@
+import { IsNotEmpty, IsString } from 'class-validator'
+import { DTO } from '../../../helpers/dto'
+
+export class CreateTemplateDTO extends DTO {
+  @IsString()
+  @IsNotEmpty()
+  uuid: string
+}

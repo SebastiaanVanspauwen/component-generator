@@ -1,0 +1,37 @@
+import { NextFunction, Request, Response } from 'express'
+import validator from 'validator'
+
+import { CustomError } from '../../helpers/errors/errors'
+import { Template } from './models/template.model'
+
+// eslint-disable-next-line max-len
+export async function resolveTemplate (req: Request, res: Response, next: NextFunction, templateUuid: string): Promise<void> {
+  // const isAdmin = req.auth.scope?.includes(Role.Admin)
+
+  if (!validator.isUUID(templateUuid, 'all')) {
+    throw new CustomError().withError('invalid_uuid')
+  }
+
+  const template = await Template.findOne(
+    {
+      where: { uuid: templateUuid },
+      relations: ['user']
+    }
+  )
+
+  if (template === undefined || template === null) {
+    throw new CustomError()
+      .withError('not_found')
+      .withDetail('Template not found')
+  }
+
+  req.extended.template = template
+
+  if (template.user.uuid === req.auth.user.uuid) {
+    next()
+  } else {
+    throw new CustomError()
+      .withError('unauthorized')
+      .withDetail('You are not authorized to access this resource')
+  }
+}

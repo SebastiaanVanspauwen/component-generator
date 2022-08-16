@@ -31,6 +31,15 @@ class TemplateController {
     }
     res.json(TemplateTransformer.item(template))
   }
+
+  async get (req: Request, res: Response): Promise<void> {
+    const template = req.extended.template
+    if (template === null || template === undefined) {
+      throw new CustomError().withError('not_found').withDetail('Template not found.')
+    }
+    await this.templateService.delete(template)
+    res.sendStatus(204)
+  }
 }
 
 export default new TemplateController()

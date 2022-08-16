@@ -1,0 +1,31 @@
+import { CustomError } from '../../../helpers/errors/errors'
+import { CreateTemplateDTO } from '../dto/create-template.dto'
+import { Template } from '../models/template.model'
+
+export class TemplateService {
+  async findAll (): Promise<Template[]> {
+    return await Template.find()
+  }
+
+  async findOne (uuid: string): Promise<Template> {
+    const template = await Template.findOne({ where: { uuid: uuid } })
+
+    if (template == null) {
+      throw new CustomError()
+        .withError('not_found')
+        .withDetail('Template not found')
+    }
+    return template
+  }
+
+  async create (dto: CreateTemplateDTO): Promise<Template> {
+    const template = Template.create(dto as Template)
+
+    return await Template.save(template)
+  }
+
+  async delete (uuid: string): Promise<Template> {
+    const template = await this.findOne(uuid)
+    return await Template.softRemove(template)
+  }
+}
