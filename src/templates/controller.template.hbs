@@ -1,0 +1,36 @@
+import { Request, Response } from 'express'
+import { DTO } from '../../helpers/dto'
+import { CreateTemplateDTO } from './dto/template.dto'
+import { ITemplateService } from './services/template.service.type'
+
+class TemplateController {
+  private readonly templateService: ITemplateService
+
+  constructor () {
+    this.templateService = new TemplateService()
+    this.create = this.create.bind(this)
+    this.get = this.get.bind(this)
+    this.getAll = this.getAll.bind(this)
+  }
+
+  async create (req: Request, res: Response): Promise<void> {
+    const dto = await DTO.factory(CreateTemplateDTO, req.body)
+    await this.templateService.create(dto)
+    res.sendStatus(201)
+  }
+
+  async getAll (req: Request, res: Response): Promise<void> {
+    await this.templateService.getAll(dto)
+    res.sendStatus(201)
+  }
+
+  async get (req: Request, res: Response): Promise<void> {
+    const template = req.extended.template
+    if (template === null || template === undefined) {
+      throw new CustomError().withError('not_found').withDetail('Template not found.')
+    }
+    res.json(TemplateTransformer.item(template))
+  }
+}
+
+export default new TemplateController()
