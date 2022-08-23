@@ -1,6 +1,6 @@
 {
   "name": "appwise-component-nodejs",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Generate component based structured folder for NodeJS projects",
   "main": "index.js",
   "files": [
@@ -9,7 +9,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc && npm run copyfiles",
-    "copyfiles": "copyfiles -u 1 src/components/Template/**/** dist/components/ && copyfiles -u 1 src/components/Template/** dist/components/"
+    "copyfiles": "copyfiles -u 1 src/components/Template/**/** dist && copyfiles -u 1 src/components/Template/** dist"
   },
   "repository": {
     "type": "git",
