@@ -6,11 +6,7 @@ import { Template } from './models/template.model'
 
 // eslint-disable-next-line max-len
 export async function resolveTemplate (req: Request, res: Response, next: NextFunction, templateUuid: string): Promise<void> {
-  // const isAdmin = req.auth.scope?.includes(Role.Admin)
-
-  if (!validator.isUUID(templateUuid, 'all')) {
-    throw new CustomError().withError('invalid_uuid')
-  }
+  if (validator.isUUID(templateUuid, 'all') === false) throw new CustomError().withError('invalid_uuid')
 
   const template = await Template.findOne(
     {
@@ -27,9 +23,8 @@ export async function resolveTemplate (req: Request, res: Response, next: NextFu
 
   req.extended.template = template
 
-  if (template.user.uuid === req.auth.user.uuid) {
-    next()
-  } else {
+  if (template.user.uuid === req.auth.user.uuid) next()
+  else {
     throw new CustomError()
       .withError('unauthorized')
       .withDetail('You are not authorized to access this resource')

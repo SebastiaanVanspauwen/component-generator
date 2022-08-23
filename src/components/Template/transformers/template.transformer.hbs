@@ -5,11 +5,11 @@ export interface TemplateType {
 }
 
 export default class TemplateTransformer {
-  static item (address: Template): TemplateType {
+  static item (template: Template): TemplateType {
     return {
-      uuid: address.uuid,
-      }
+      uuid: template.uuid
     }
+  }
 
   static array (templates: Template[]): TemplateType[] {
     return templates.map(template => this.item(template))

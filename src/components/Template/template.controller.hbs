@@ -1,10 +1,12 @@
 import { Request, Response } from 'express'
 import { DTO } from '../../helpers/dto'
-import { CreateTemplateDTO } from './dto/template.dto'
-import { ITemplateService } from './services/template.service.type'
+import { CustomError } from '../../helpers/errors/errors'
+import { CreateTemplateDTO } from './dto/create-template.dto'
+import { TemplateService } from './services/template.service'
+import TemplateTransformer from './transformers/template.transformer'
 
 class TemplateController {
-  private readonly templateService: ITemplateService
+  private readonly templateService: TemplateService
 
   constructor () {
     this.templateService = new TemplateService()
@@ -20,23 +22,22 @@ class TemplateController {
   }
 
   async getAll (req: Request, res: Response): Promise<void> {
-    await this.templateService.getAll(dto)
+    const user = req.auth.user
+    await this.templateService.getAll(user)
     res.sendStatus(201)
   }
 
   async get (req: Request, res: Response): Promise<void> {
     const template = req.extended.template
-    if (template === null || template === undefined) {
-      throw new CustomError().withError('not_found').withDetail('Template not found.')
-    }
+    if (template === null || template === undefined) throw new CustomError().withError('not_found').withDetail('Template not found.')
+
     res.json(TemplateTransformer.item(template))
   }
 
-  async get (req: Request, res: Response): Promise<void> {
+  async delete (req: Request, res: Response): Promise<void> {
     const template = req.extended.template
-    if (template === null || template === undefined) {
-      throw new CustomError().withError('not_found').withDetail('Template not found.')
-    }
+    if (template === null || template === undefined) throw new CustomError().withError('not_found').withDetail('Template not found.')
+
     await this.templateService.delete(template)
     res.sendStatus(204)
   }

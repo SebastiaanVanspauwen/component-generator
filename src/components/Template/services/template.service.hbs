@@ -3,12 +3,12 @@ import { CreateTemplateDTO } from '../dto/create-template.dto'
 import { Template } from '../models/template.model'
 
 export class TemplateService {
-  async findAll (): Promise<Template[]> {
-    return await Template.find()
+  async getAll (user: User): Promise<Template[]> {
+    return await Template.find({ where: { user } })
   }
 
-  async findOne (uuid: string): Promise<Template> {
-    const template = await Template.findOne({ where: { uuid: uuid } })
+  async get (uuid: string): Promise<Template> {
+    const template = await Template.findOne({ where: { uuid } })
 
     if (template == null) {
       throw new CustomError()
@@ -25,7 +25,7 @@ export class TemplateService {
   }
 
   async delete (uuid: string): Promise<Template> {
-    const template = await this.findOne(uuid)
+    const template = await this.get(uuid)
     return await Template.softRemove(template)
   }
 }

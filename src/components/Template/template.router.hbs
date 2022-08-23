@@ -1,13 +1,15 @@
 /* eslint-disable import/no-namespace */
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { Router } from 'express'
+import templateController from './template.controller'
 
 const templateRouter: Router = Router()
 
 templateRouter.param('template', resolveTemplate)
 
 templateRouter.post('/', templateController.create)
-templateRouter.get('/:template', addressController.get)
-templateRouter.delete('/:template', addressController.delete)
+templateRouter.get('/', templateController.getAll)
+templateRouter.get('/:template', templateController.get)
+templateRouter.delete('/:template', templateController.delete)
 
 export default templateRouter

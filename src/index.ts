@@ -1,30 +1,7 @@
 #!/usr/bin/env node
 
-import * as fs from 'fs'
-// import * as yargs from 'yargs'
-
-function createFolderStructure (name: string): any {
-  name = name.toLowerCase()
-  const folders = {
-    dto: {},
-    models: {},
-    services: {},
-    transformers: {}
-  } as unknown as any
-
-  folders.dto = [`create-${name}.dto.ts`, `update-${name}.dto.ts`]
-  folders.models = [`${name}.model.ts`]
-  folders.services = [`${name}.service.ts`]
-  folders.transformers = [`${name}.transformer.ts`]
-
-  return folders
-}
-
-function readAndReplace (path: string, componentName: string): string {
-  return fs.readFileSync(path, 'utf8')
-    .replace(/(Template)/g, componentName)
-    .replace(/(template)/g, componentName.toLowerCase())
-}
+import path from 'path'
+import { createDirectories, getFilesInDirectory, readAndReplace, toArray, writeToFile } from './helpers/file'
 
 void generate()
 
@@ -33,34 +10,19 @@ function _throw (): never {
 }
 
 async function generate (): Promise<void> {
-  const currentDir = process.cwd()
   const componentName = process.argv.slice(2)[0] ?? _throw()
-  const lowercase = componentName.toLowerCase()
+  const templatePath = path.join(__dirname, '/components/Template')
+  const templateFiles = (await toArray(getFilesInDirectory(templatePath))).filter(file => file.endsWith('.hbs'))
+  const templateFolders = (await toArray(getFilesInDirectory(templatePath))).filter(file => !file.endsWith('.hbs'))
 
-  const template = `${currentDir}/src/templates`
-  const folderPath = `${currentDir}/src/components/${componentName}`
+  const newFolder = templateFolders.map(folder => folder.replace(/Template/g, componentName))
+  await createDirectories(newFolder)
 
-  const structure = createFolderStructure(componentName)
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  templateFiles.forEach(async file => {
+    const newFile = file.replace(/Template/g, componentName).replace(/template/g, componentName.toLowerCase()).replace('.hbs', '.ts')
 
-  // Create folders
-  for (const key in structure) {
-    const folder = structure[key]
-    for (const file of folder) {
-      fs.mkdirSync(`${folderPath}/${key}`, { recursive: true });
-
-
-      const filePath = `${folderPath}/${key}/${file}`
-      const text = readAndReplace(`${template}/${key}.template.hbs`, componentName)
-
-      fs.writeFileSync(filePath, text)
-    }
-  }
-
-  const singleFiles = ['controller', 'router', 'middleware']
-  for (const file of singleFiles) {
-    const filePath = `${folderPath}/${lowercase}.${file}.ts`
-    const text = readAndReplace(`${template}/${file}.template.hbs`, componentName)
-
-    fs.writeFileSync(filePath, text)
-  }
+    const data = await readAndReplace(file, componentName)
+    await writeToFile(newFile, data)
+  })
 }
